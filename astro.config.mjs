@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://portfolio.vercel.app',
+  site: 'https://vibe-coding-personal-protfolio-webs.vercel.app',
   integrations: [react(), mdx(), sitemap()],
 
   vite: {
