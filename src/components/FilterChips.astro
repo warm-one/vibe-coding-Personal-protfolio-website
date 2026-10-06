@@ -1,0 +1,38 @@
+---
+interface Chip {
+  key: string;
+  label: string;
+  href: string;
+}
+
+interface Props {
+  items: Chip[];
+  active?: string;
+}
+
+const { items, active = "all" } = Astro.props;
+
+const chips: Chip[] = [{ key: "all", label: "全部", href: "/projects" }, ...items];
+---
+
+<nav aria-label="作品分类" class="flex flex-wrap gap-2">
+  {
+    chips.map((chip) => {
+      const isActive = active === chip.key;
+      return (
+        <a
+          href={chip.href}
+          aria-current={isActive ? "page" : undefined}
+          class:list={[
+            "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+            isActive
+              ? "border-accent bg-accent/10 text-accent"
+              : "border-border text-muted hover:border-accent/60 hover:text-foreground",
+          ]}
+        >
+          {chip.label}
+        </a>
+      );
+    })
+  }
+</nav>

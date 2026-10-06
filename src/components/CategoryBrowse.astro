@@ -1,0 +1,52 @@
+---
+import { categoryHref, type Category } from "../lib/categories";
+
+interface Item extends Category {
+  count: number;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+const cols =
+  items.length >= 3
+    ? "sm:grid-cols-3"
+    : items.length === 2
+      ? "sm:grid-cols-2"
+      : "";
+---
+
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <div class="flex items-baseline justify-between gap-4">
+    <h2 class="text-2xl font-semibold tracking-tight">按分类浏览</h2>
+    <a href="/projects" class="text-sm text-muted hover:text-accent">
+      全部作品 →
+    </a>
+  </div>
+
+  <div
+    class:list={[
+      "mt-8 grid divide-y divide-border overflow-hidden rounded-lg border border-border sm:divide-x sm:divide-y-0",
+      cols,
+    ]}
+  >
+    {
+      items.map((item) => (
+        <a
+          href={categoryHref(item.key)}
+          class="group flex items-center justify-between gap-4 bg-surface p-6 transition-colors hover:bg-background"
+        >
+          <span>
+            <span class="block text-lg font-medium group-hover:text-accent">
+              {item.label}
+            </span>
+            <span class="mt-1 block text-sm text-muted">{item.blurb}</span>
+          </span>
+          <span class="text-sm tabular-nums text-muted">{item.count}</span>
+        </a>
+      ))
+    }
+  </div>
+</section>

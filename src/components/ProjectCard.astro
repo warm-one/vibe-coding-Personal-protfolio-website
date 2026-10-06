@@ -1,0 +1,43 @@
+---
+import { Image } from "astro:assets";
+import type { Project } from "../lib/projects";
+import Tag from "./Tag.astro";
+
+interface Props {
+  project: Project;
+  headingLevel?: "h2" | "h3";
+}
+
+const { project, headingLevel = "h3" } = Astro.props;
+const { title, summary, cover, tags } = project.data;
+const Heading = headingLevel;
+---
+
+<a
+  href={`/projects/${project.id}`}
+  class="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-accent/60"
+>
+  <Image
+    src={cover}
+    alt={title}
+    width={800}
+    height={450}
+    loading="lazy"
+    class="aspect-[16/9] w-full object-cover"
+  />
+  <div class="flex flex-1 flex-col p-4">
+    <Heading class="font-semibold tracking-tight group-hover:text-accent">
+      {title}
+    </Heading>
+    <p class="mt-2 flex-1 text-sm text-muted">{summary}</p>
+    {
+      tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <Tag label={tag} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</a>

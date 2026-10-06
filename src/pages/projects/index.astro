@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import FilterChips from "../../components/FilterChips.astro";
+import { getProjects } from "../../lib/projects";
+import { categoriesWithCounts, categoryHref } from "../../lib/categories";
+
+const projects = await getProjects();
+const chips = categoriesWithCounts(projects)
+  .filter((category) => category.count > 0)
+  .map((category) => ({
+    key: category.key,
+    label: category.label,
+    href: categoryHref(category.key),
+  }));
+---
+
+<BaseLayout title="作品" description="我练手做过的项目。">
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">作品</h1>
+    <p class="mt-4 text-muted">共 {projects.length} 个项目。</p>
+
+    <div class="mt-6">
+      <FilterChips items={chips} active="all" />
+    </div>
+
+    <div class="mt-8 grid gap-6 sm:grid-cols-2">
+      {
+        projects.map((project) => (
+          <ProjectCard project={project} headingLevel="h2" />
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

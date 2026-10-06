@@ -1,0 +1,67 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import CategoryBrowse from "../components/CategoryBrowse.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { SITE } from "../consts";
+import { getProjects } from "../lib/projects";
+import { categoriesWithCounts } from "../lib/categories";
+
+const projects = await getProjects();
+
+const stats = [
+  { value: String(projects.length), label: "作品" },
+  ...(SITE.years ? [{ value: SITE.years, label: "年经验" }] : []),
+  ...(SITE.skills.length > 0
+    ? [{ value: String(SITE.skills.length), label: "技能" }]
+    : []),
+];
+
+const categories = categoriesWithCounts(projects).filter(
+  (category) => category.count > 0,
+);
+
+const featured = projects.filter((project) => project.data.featured).slice(0, 4);
+---
+
+<BaseLayout>
+  <Hero stats={stats} />
+
+  <CategoryBrowse items={categories} />
+
+  <section id="projects" class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <div class="flex items-baseline justify-between gap-4">
+      <h2 class="text-2xl font-semibold tracking-tight">精选作品</h2>
+      <a href="/projects" class="text-sm text-muted hover:text-accent">
+        全部 →
+      </a>
+    </div>
+    <div
+      class:list={[
+        "mt-8 grid gap-6",
+        featured.length > 1 && "sm:grid-cols-2",
+      ]}
+    >
+      {featured.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+
+  <section id="about" class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">关于我</h2>
+    <p class="mt-4 max-w-xl text-pretty text-muted">{SITE.bio}</p>
+    <a href="/about" class="mt-4 inline-block text-sm text-accent hover:underline">
+      了解更多 →
+    </a>
+  </section>
+
+  <section id="contact" class="mx-auto max-w-6xl px-4 pt-16 pb-24 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">联系我</h2>
+    <p class="mt-4 text-muted">有合作或想法，欢迎直接找我。</p>
+    <a
+      href={`mailto:${SITE.email}`}
+      class="mt-4 inline-block text-accent hover:underline"
+    >
+      {SITE.email}
+    </a>
+  </section>
+</BaseLayout>

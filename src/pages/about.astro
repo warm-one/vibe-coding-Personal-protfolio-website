@@ -1,0 +1,83 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Tag from "../components/Tag.astro";
+import CopyEmail from "../components/islands/CopyEmail.tsx";
+import { SITE } from "../consts";
+---
+
+<BaseLayout title="关于" description={SITE.bio}>
+  <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <img
+        src={SITE.avatar}
+        alt={SITE.name}
+        width="96"
+        height="96"
+        class="h-24 w-24 rounded-full border border-border"
+      />
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          {SITE.name}
+        </h1>
+        <p class="mt-2 text-muted">{SITE.role}</p>
+      </div>
+    </div>
+
+    <p class="mt-8 max-w-xl text-pretty text-lg text-muted">{SITE.bio}</p>
+
+    {
+      SITE.skills.length > 0 && (
+        <div class="mt-10">
+          <h2 class="text-lg font-semibold">技能</h2>
+          <div class="mt-4 flex flex-wrap gap-2">
+            {SITE.skills.map((skill) => (
+              <Tag label={skill} />
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      SITE.experience.length > 0 && (
+        <div class="mt-10">
+          <h2 class="text-lg font-semibold">经历</h2>
+          <ul class="mt-4 space-y-6">
+            {SITE.experience.map((item) => (
+              <li class="border-l border-border pl-4">
+                <p class="font-medium">
+                  {item.role} · {item.company}
+                </p>
+                <p class="mt-1 text-sm text-muted">{item.period}</p>
+                {item.summary && (
+                  <p class="mt-2 text-sm text-muted">{item.summary}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    <div id="contact" class="mt-10">
+      <h2 class="text-lg font-semibold">联系</h2>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <a href={`mailto:${SITE.email}`} class="text-accent hover:underline">
+          {SITE.email}
+        </a>
+        <CopyEmail email={SITE.email} client:idle />
+      </div>
+      <ul class="mt-4 flex flex-wrap gap-4 text-sm text-muted">
+        {
+          SITE.socials.map((social) => (
+            <li>
+              <a href={social.href} class="hover:text-accent">
+                {social.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

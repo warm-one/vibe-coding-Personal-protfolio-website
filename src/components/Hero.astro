@@ -1,0 +1,68 @@
+---
+import { SITE } from "../consts";
+import HeroVisual from "./HeroVisual.astro";
+
+interface Stat {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  stats: Stat[];
+}
+
+const { stats } = Astro.props;
+---
+
+<section class="border-b border-border/60">
+  <div
+    class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:pt-24 lg:pb-24"
+  >
+    <div>
+      <p class="text-xs font-medium tracking-[0.22em] text-accent uppercase">
+        {SITE.role}
+      </p>
+
+      <h1
+        class="mt-6 text-[2.6rem] leading-[1.04] font-bold tracking-tight text-balance sm:text-6xl"
+      >
+        {SITE.headline.lead}<br />
+        <span class="text-muted">{SITE.headline.accent}</span>
+      </h1>
+
+      <p class="mt-6 max-w-md text-base text-pretty text-muted sm:text-lg">
+        {SITE.bio}
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+        <a
+          href="/projects"
+          class="group inline-flex items-center gap-2 font-medium text-foreground"
+        >
+          查看作品
+          <span class="transition-transform group-hover:translate-x-0.5">→</span>
+        </a>
+        <a href="#contact" class="text-muted transition-colors hover:text-foreground">
+          联系我
+        </a>
+      </div>
+
+      <dl class="mt-12 flex divide-x divide-border">
+        {
+          stats.map((stat) => (
+            <div class="px-6 first:ps-0">
+              <dd class="text-3xl font-semibold tracking-tight tabular-nums">
+                {stat.value}
+              </dd>
+              <dt class="mt-2 text-xs tracking-[0.18em] text-muted">
+                {stat.label}
+              </dt>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <HeroVisual class="min-h-56 lg:min-h-[30rem]" />
+  </div>
+</section>
