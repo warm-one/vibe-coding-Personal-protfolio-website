@@ -32,13 +32,13 @@ export interface SiteConfig {
 }
 
 export const SITE: SiteConfig = {
-  name: "你的名字",
+  name: "warm",
   role: "全栈开发者 / Vibe Coder",
   headline: { lead: "把想法变成", accent: "能用的产品" },
   bio: "平时用 AI 辅助学习和做东西，这里放我练手做过的项目。",
   years: "",
   avatar: "/avatar.svg",
-  email: "hello@example.com",
+  email: "1757285503@qq.com",
   location: "中国",
   nav: [
     { label: "首页", href: "/" },
@@ -47,7 +47,7 @@ export const SITE: SiteConfig = {
   ],
   socials: [
     { label: "GitHub", href: "https://github.com/warm-one", icon: "github" },
-    { label: "邮箱", href: "mailto:hello@example.com", icon: "mail" },
+    { label: "邮箱", href: "mailto:1757285503@qq.com", icon: "mail" },
   ],
   skills: [],
   experience: [],
