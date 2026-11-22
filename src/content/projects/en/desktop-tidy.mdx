@@ -1,0 +1,28 @@
+---
+title: "DesktopTidy"
+summary: "Preview where each Windows desktop file will go, keep selected files close at hand, and undo the last batch of moves."
+cover: ../../../assets/projects/desktop-tidy.png
+date: 2026-10-17
+lang: en
+tags: ["Python", "CustomTkinter", "Windows"]
+type: tool
+featured: true
+links:
+  github: https://github.com/warm-one/DesktopTidy
+---
+
+## Decide what should move
+
+A brief in progress, a sketch, and an unpacked archive can all sit on the same desktop. Sorting by type is straightforward, but the brief may still belong within reach. DesktopTidy shows the destination and reason for each proposed move. You can uncheck individual files before confirming the batch.
+
+The cover illustrates a preview generated with sample files. The standard plan assigned `assets.zip` to archives, `brief.pdf` to documents, and `sketch.png` to pictures. A fourth file, the shortcut `editor.lnk`, stayed in place. Previewing this plan moved no files.
+
+## How undo works
+
+The scanner reads the top level of the desktop. When a destination name is taken, the mover adds a numeric suffix. It skips locked files and records the reason. Each batch has a local log, which undo uses to trace completed moves back to their original locations.
+
+## Where AI fits
+
+Built-in sorting works offline. For custom categories you can enter keywords yourself or ask AI to turn a request such as “group papers and reports under academic material” into a rule. When enabled, the configured AI service receives the description and filenames for classification. The resulting moves go through the same local preview and confirmation.
+
+Follow the project README on Windows, then run `python main.py plan` to see a preview for your own desktop. To open the graphical interface, run `python gui_main.py`.

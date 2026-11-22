@@ -18,7 +18,7 @@ const zh = {
   aboutMeta:
     "关于 warm：从真实需求出发，借助 AI 辅助开发并构建可运行网页工具。",
   projectsMeta:
-    "作品集 · 共 {count} 个项目：{names}。用 Astro、React 与 TypeScript 构建，持续更新。",
+    "作品集 · 共 {count} 个项目：{names}。浏览网页应用和桌面工具的需求、实现与使用方式。",
   projectMetaSuffix: "项目详情：背景、我做了什么与结果。",
   navHome: "首页",
   navProjects: "作品",
@@ -40,7 +40,7 @@ const zh = {
   catGame: "小游戏",
   catGameBlurb: "可玩的小游戏与交互演示",
   catTool: "工具",
-  catToolBlurb: "自用的在线小工具",
+  catToolBlurb: "处理日常任务的小工具",
 
   featuredTitle: "精选作品",
   viewAll: "全部",
@@ -95,7 +95,7 @@ const zh = {
   nextProject: "下一件",
   catOther: "其他",
   projectsIntro:
-    "用 Astro、React 和 TypeScript 做过的网页应用与小工具，每个项目都记录了背景、做法和结果。",
+    "从浏览器笔记本到 Windows 桌面整理助手，每个项目都记录了需求、做法和结果。",
 };
 
 const en: Record<keyof typeof zh, string> = {
@@ -105,7 +105,7 @@ const en: Record<keyof typeof zh, string> = {
   aboutMeta:
     "About warm, who starts from practical needs and uses AI-assisted development to build useful web tools.",
   projectsMeta:
-    "Selected work · {count} projects: {names}. Built with Astro, React and TypeScript.",
+    "Selected work · {count} projects: {names}. Explore the design and implementation of web apps and desktop tools.",
   projectMetaSuffix: "Project details: background, what I built and the result.",
   navHome: "Home",
   navProjects: "Work",
@@ -183,7 +183,7 @@ const en: Record<keyof typeof zh, string> = {
   nextProject: "Next",
   catOther: "Other",
   projectsIntro:
-    "Web apps and small tools built with Astro, React and TypeScript — each with the background, approach, and outcome.",
+    "From a browser notebook to a Windows desktop organizer, each project documents the need, design decisions, and result.",
 };
 
 export const ui = { zh, en } as const;

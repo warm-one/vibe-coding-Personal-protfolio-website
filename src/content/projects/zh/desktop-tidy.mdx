@@ -1,0 +1,28 @@
+---
+title: "DesktopTidy 桌面整理助手"
+summary: "整理 Windows 桌面前，先逐项查看文件要移到哪里。确认后再移动，需要时可以撤销最近一次整理。"
+cover: ../../../assets/projects/desktop-tidy.png
+date: 2026-10-17
+lang: zh
+tags: ["Python", "CustomTkinter", "Windows"]
+type: tool
+featured: true
+links:
+  github: https://github.com/warm-one/DesktopTidy
+---
+
+## 先看去向，再决定要不要整理
+
+桌面上有一份还在改的文档、一张草图和一个解压过的素材包。按类型归档很容易，但我可能希望把正在改的文档留在手边。DesktopTidy 把预览做成可以修改的清单，每行显示文件、目标和分类理由，用户可以取消勾选，再确认执行。
+
+封面来自一次示例预览。标准方案把 `assets.zip`、`brief.pdf` 和 `sketch.png` 分别归入压缩包、文档和图片。一起参加扫描的快捷方式 `editor.lnk` 留在原处。这次预览没有移动文件。
+
+## 一次整理如何撤销
+
+扫描只读取桌面顶层。执行时遇到同名文件会给目标加上编号，遇到被占用的文件会跳过并记录。每批操作都有本地日志，撤销时根据实际移动记录把文件移回原位。
+
+## AI 如何参与分类
+
+常用分类可以离线完成。需要自定义规则时，可以手动填写关键词，也可以把“文件名含有论文或报告的归入学术资料”这样的描述交给 AI 生成规则。启用 AI 时，配置的服务会收到描述和用于分类的文件名。生成的规则仍要经过本地预览和确认。
+
+在 Windows 上按项目 README 安装后，可以先运行 `python main.py plan` 查看自己桌面的整理方案，也可以用 `python gui_main.py` 打开图形界面。

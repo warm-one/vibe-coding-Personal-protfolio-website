@@ -4,6 +4,12 @@
 
 技术栈：**Astro + MDX + Tailwind CSS 4 + TypeScript**；轻交互用极小内联脚本，React 依赖保留但 `react()` 集成当前不启用（页面零外部 JS）；内容用 Markdown/MDX；纯静态；部署 Vercel。
 
+## 精选项目
+
+- [DesktopTidy 桌面整理助手](src/content/projects/zh/desktop-tidy.mdx) · Windows 工具，支持逐项预览文件去向、确认移动和按日志撤销。[项目源码](https://github.com/warm-one/DesktopTidy)
+- [Markdown 笔记](src/content/projects/zh/project-markdown.mdx) · 在浏览器里写作、实时预览，并把笔记保存在本地。
+- [个人作品集网站](src/content/projects/zh/project-web.mdx) · 中英双语静态站点及站内项目演示。
+
 ## 文档
 
 - `docs/RESEARCH.md` — 需求研究
