@@ -1,15 +1,25 @@
 ---
-import { categoryHref, type Category } from "../lib/categories";
+import {
+  categoryBlurbKey,
+  categoryHref,
+  categoryLabelKey,
+  type Category,
+} from "../lib/categories";
+import { useTranslations } from "../i18n/utils";
+import type { Lang } from "../i18n/ui";
 
 interface Item extends Category {
   count: number;
 }
 
 interface Props {
+  lang: Lang;
   items: Item[];
 }
 
-const { items } = Astro.props;
+const { lang, items } = Astro.props;
+const t = useTranslations(lang);
+
 const cols =
   items.length >= 3
     ? "sm:grid-cols-3"
@@ -18,35 +28,41 @@ const cols =
       : "";
 ---
 
-<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-  <div class="flex items-baseline justify-between gap-4">
-    <h2 class="text-2xl font-semibold tracking-tight">按分类浏览</h2>
-    <a href="/projects" class="text-sm text-muted hover:text-accent">
-      全部作品 →
-    </a>
-  </div>
-
-  <div
-    class:list={[
-      "mt-8 grid divide-y divide-border overflow-hidden rounded-lg border border-border sm:divide-x sm:divide-y-0",
-      cols,
-    ]}
-  >
-    {
-      items.map((item) => (
-        <a
-          href={categoryHref(item.key)}
-          class="group flex items-center justify-between gap-4 bg-surface p-6 transition-colors hover:bg-background"
-        >
+<div
+  class:list={[
+    "mt-8 grid divide-y divide-border overflow-hidden rounded-xl border border-border sm:divide-x sm:divide-y-0",
+    cols,
+  ]}
+>
+  {
+    items.map((item, index) => (
+      <a
+        href={categoryHref(item.key, lang)}
+        class="group flex items-center justify-between gap-4 bg-surface p-5 transition-colors hover:bg-background sm:p-6"
+      >
+        <span class="flex items-center gap-4">
+          <span class="text-[11px] tabular-nums text-muted" aria-hidden="true">
+            {String(index + 1).padStart(2, "0")}
+          </span>
           <span>
             <span class="block text-lg font-medium group-hover:text-accent">
-              {item.label}
+              {t(categoryLabelKey(item.key))}
             </span>
-            <span class="mt-1 block text-sm text-muted">{item.blurb}</span>
+            <span class="mt-1 block text-sm text-muted">
+              {t(categoryBlurbKey(item.key))}
+            </span>
           </span>
-          <span class="text-sm tabular-nums text-muted">{item.count}</span>
-        </a>
-      ))
-    }
-  </div>
-</section>
+        </span>
+        <span class="flex shrink-0 items-center gap-3 text-sm tabular-nums text-muted">
+          {item.count}
+          <span
+            class="transition-transform motion-safe:group-hover:translate-x-0.5"
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </span>
+      </a>
+    ))
+  }
+</div>

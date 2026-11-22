@@ -1,27 +1,60 @@
 ---
 import { SITE } from "../consts";
+import { useTranslations } from "../i18n/utils";
+import type { Lang } from "../i18n/ui";
 
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
 const year = new Date().getFullYear();
 ---
 
 <footer class="border-t border-border/60">
-  <div
-    class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6"
-  >
-    <p>© {year} {SITE.name}</p>
-    <ul class="flex items-center gap-4">
-      {
-        SITE.socials.map((social) => (
-          <li>
-            <a
-              href={social.href}
-              class="transition-colors hover:text-foreground"
-            >
-              {social.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+  <div class="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-sm font-semibold tracking-tight">{t("contactTitle")}</h2>
+        <a
+          href={"mailto:" + SITE.email}
+          class="mt-2 inline-block text-lg font-medium text-foreground transition-colors hover:text-accent"
+        >
+          {SITE.email}
+        </a>
+      </div>
+      <ul class="flex flex-wrap items-center gap-3">
+        {
+          SITE.socials.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                class="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent/60 hover:text-foreground"
+                target={social.href.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  social.href.startsWith("http")
+                    ? "noopener noreferrer"
+                    : undefined
+                }
+              >
+                {social.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div
+      class="flex flex-col gap-2 border-t border-border/60 pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} {SITE.name}</p>
+      <a
+        href="#top"
+        class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground"
+      >
+        {t("backToTop")} <span aria-hidden="true">↑</span>
+      </a>
+    </div>
   </div>
 </footer>

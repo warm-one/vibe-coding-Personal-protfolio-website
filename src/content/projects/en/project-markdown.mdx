@@ -1,0 +1,30 @@
+---
+title: "Markdown Notes"
+summary: "A Markdown workspace for capturing notes, previewing them live, and keeping them in local storage."
+cover: ../../../assets/projects/project-markdown.jpg
+date: 2026-10-06
+lang: en
+embed: /demos/markdown/
+tags: ["React", "TypeScript", "Vite", "Tailwind CSS", "IndexedDB"]
+type: web
+featured: true
+---
+
+## The need
+
+I wanted a notebook that opens straight into writing, without an account or handing private notes to a cloud service. Lightweight editors often split writing, preview, and file management across separate views.
+
+## Approach and trade-offs
+
+- Put the note list, Markdown editor, and live preview in one three-pane workspace
+- Store notes in IndexedDB, with a localStorage fallback. Data stays in the current browser
+- Add full-text search, code highlighting, and Markdown or standalone HTML export so notes can leave the app
+- Skip accounts and cloud sync. Notes do not follow you to another device, in exchange for a simpler local-first workflow
+
+## Working with AI
+
+I used AI to help break down the requirements and implement the features, then checked the interactions against the original needs: write immediately, keep data local, and make the result portable. I set the product boundaries and decisions, while AI helped me move through implementation and iteration faster.
+
+## Current delivery
+
+This is a front-end app with no account or backend. Load the live version above to try it. Notes live in browser storage, so export a backup before clearing browser data.

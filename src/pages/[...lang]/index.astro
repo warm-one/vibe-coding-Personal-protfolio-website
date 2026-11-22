@@ -1,0 +1,138 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Hero from "../../components/Hero.astro";
+import CategoryBrowse from "../../components/CategoryBrowse.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import SectionHeader from "../../components/SectionHeader.astro";
+import { SITE } from "../../consts";
+import { categoriesWithCounts } from "../../lib/categories";
+import { getProjects } from "../../lib/projects";
+import {
+  getLangFromUrl,
+  getLangStaticPaths,
+  localizePath,
+  useTranslations,
+} from "../../i18n/utils";
+
+export function getStaticPaths() {
+  return getLangStaticPaths();
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const projects = await getProjects(lang);
+
+const categories = categoriesWithCounts(
+  projects.map((project) => ({ data: project.entry.data })),
+).filter((category) => category.count > 0);
+
+const featured = projects.filter((project) => project.entry.data.featured);
+const selected = featured.length > 0 ? featured.slice(0, 4) : projects.slice(0, 2);
+const showcase = selected[0] ?? null;
+
+const projectsHref = localizePath("/projects", lang);
+const aboutHref = localizePath("/about", lang);
+
+const siteUrl = Astro.site?.href ?? "https://vibe-coding-personal-protfolio-webs.vercel.app/";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: SITE.name,
+      url: siteUrl,
+      inLanguage: lang === "zh" ? "zh-CN" : "en",
+    },
+    {
+      "@type": "Person",
+      name: SITE.name,
+      url: siteUrl,
+      email: "mailto:" + SITE.email,
+      sameAs: SITE.socials
+        .filter((social) => social.href.startsWith("http"))
+        .map((social) => social.href),
+    },
+  ],
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={SITE.name + " · " + t("homeTitle")}
+  description={t("homeMeta")}
+  jsonLd={jsonLd}
+>
+  <Hero lang={lang} showcase={showcase} />
+
+  <section id="projects" class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+    <SectionHeader
+      title={t("featuredTitle")}
+      href={projectsHref}
+      linkLabel={t("viewAll")}
+      index="01"
+    />
+    {
+      selected.length > 0 ? (
+        <div
+          class:list={[
+            "mt-8 grid gap-6",
+            selected.length > 1 && "sm:grid-cols-2",
+          ]}
+        >
+          {selected.map((project) => (
+            <ProjectCard project={project} lang={lang} />
+          ))}
+        </div>
+      ) : (
+        <p class="mt-8 text-muted">{t("emptyProjects")}</p>
+      )
+    }
+  </section>
+
+  {
+    categories.length > 1 && (
+      <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+        <SectionHeader
+          title={t("browseTitle")}
+          href={projectsHref}
+          linkLabel={t("browseAll")}
+          index="02"
+        />
+        <CategoryBrowse lang={lang} items={categories} />
+      </section>
+    )
+  }
+
+  <section id="about" class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+    <SectionHeader
+      title={t("aboutTitle")}
+      href={aboutHref}
+      linkLabel={t("aboutMore")}
+      index={categories.length > 1 ? "03" : "02"}
+    />
+    <div class="mt-8 flex flex-col gap-6 border-y border-border py-6 sm:flex-row sm:items-center sm:py-8">
+      <div class="flex shrink-0 items-center gap-4">
+        <img
+          src={SITE.avatar}
+          alt={SITE.name}
+          width="80"
+          height="80"
+          class="h-20 w-20 rounded-full border border-border"
+        />
+        <div>
+          <p class="text-xl font-semibold tracking-tight">{SITE.name}</p>
+          <p class="mt-1 text-sm text-muted">{SITE.role[lang]}</p>
+        </div>
+      </div>
+      <p class="max-w-xl text-pretty text-muted">{t("aboutHomeBlurb")}</p>
+      <div class="sm:ml-auto">
+        <a
+          href={aboutHref}
+          class="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent hover:underline"
+        >
+          {t("aboutMore")} <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

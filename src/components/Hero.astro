@@ -1,68 +1,92 @@
 ---
 import { SITE } from "../consts";
 import HeroVisual from "./HeroVisual.astro";
-
-interface Stat {
-  value: string;
-  label: string;
-}
+import HeroShowcase from "./HeroShowcase.astro";
+import { localizePath, useTranslations } from "../i18n/utils";
+import type { Lang } from "../i18n/ui";
+import type { LocalizedProject } from "../lib/projects";
 
 interface Props {
-  stats: Stat[];
+  lang: Lang;
+  showcase: LocalizedProject | null;
 }
 
-const { stats } = Astro.props;
+const { lang, showcase } = Astro.props;
+const t = useTranslations(lang);
+const headline = SITE.headline[lang];
+const projectsHref = localizePath("/projects", lang);
+const contactHref = localizePath("/about#contact", lang);
 ---
 
-<section class="border-b border-border/60">
+<section class="relative overflow-hidden border-b border-border/60">
   <div
     class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:pt-24 lg:pb-24"
   >
     <div>
-      <p class="text-xs font-medium tracking-[0.22em] text-accent uppercase">
-        {SITE.role}
-      </p>
+      <p class="eyebrow">{SITE.role[lang]}</p>
 
       <h1
-        class="mt-6 text-[2.6rem] leading-[1.04] font-bold tracking-tight text-balance sm:text-6xl"
+        class="mt-5 text-[2.6rem] leading-[1.04] font-bold tracking-tight text-balance sm:text-6xl"
       >
-        {SITE.headline.lead}<br />
-        <span class="text-muted">{SITE.headline.accent}</span>
+        {headline.lead}<br />
+        <span class="text-muted">{headline.accent}</span>
       </h1>
 
       <p class="mt-6 max-w-md text-base text-pretty text-muted sm:text-lg">
-        {SITE.bio}
+        {SITE.bio[lang]}
       </p>
 
-      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+      <div class="mt-8 flex flex-wrap items-center gap-3 text-sm">
         <a
-          href="/projects"
-          class="group inline-flex items-center gap-2 font-medium text-foreground"
+          href={projectsHref}
+          class="group inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 font-medium text-background transition-opacity hover:opacity-90"
         >
-          查看作品
-          <span class="transition-transform group-hover:translate-x-0.5">→</span>
+          {t("ctaViewWork")}
+          <span
+            class="transition-transform motion-safe:group-hover:translate-x-0.5"
+            aria-hidden="true">→</span
+          >
         </a>
-        <a href="#contact" class="text-muted transition-colors hover:text-foreground">
-          联系我
+        <a
+          href={contactHref}
+          class="inline-flex items-center rounded-md border border-border px-5 py-2.5 font-medium text-muted transition-colors hover:border-accent/60 hover:text-foreground"
+        >
+          {t("ctaContact")}
         </a>
       </div>
 
-      <dl class="mt-12 flex divide-x divide-border">
-        {
-          stats.map((stat) => (
-            <div class="px-6 first:ps-0">
-              <dd class="text-3xl font-semibold tracking-tight tabular-nums">
-                {stat.value}
-              </dd>
-              <dt class="mt-2 text-xs tracking-[0.18em] text-muted">
-                {stat.label}
-              </dt>
-            </div>
-          ))
-        }
-      </dl>
+      <ol class="mt-10 grid max-w-xl grid-cols-3 gap-3 border-t border-border pt-4 text-xs text-muted sm:text-sm">
+        <li>{t("processNeed")}</li>
+        <li>{t("processBuild")}</li>
+        <li>{t("processTry")}</li>
+      </ol>
     </div>
 
-    <HeroVisual class="min-h-56 lg:min-h-[30rem]" />
+    <div class="relative min-h-56 lg:min-h-[30rem]">
+      <HeroVisual class="absolute inset-0" />
+      {
+        showcase ? (
+          <HeroShowcase
+            project={showcase}
+            lang={lang}
+            class="relative z-10 mx-auto mt-12 w-[94%] sm:mt-16 sm:w-[88%] lg:mt-20 lg:w-[92%]"
+          />
+        ) : (
+          <div class="relative z-10 mx-auto mt-12 flex w-[94%] items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-lg sm:mt-16 sm:w-[88%]">
+            <img
+              src={SITE.avatar}
+              alt={SITE.name}
+              width="64"
+              height="64"
+              class="h-16 w-16 rounded-full border border-border"
+            />
+            <div>
+              <p class="text-lg font-semibold tracking-tight">{SITE.name}</p>
+              <p class="mt-1 text-sm text-muted">{SITE.role[lang]}</p>
+            </div>
+          </div>
+        )
+      }
+    </div>
   </div>
 </section>

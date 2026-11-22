@@ -1,0 +1,160 @@
+---
+import { useTranslations } from "../i18n/utils";
+import type { Lang } from "../i18n/ui";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const labels = {
+  group: t("themeGroup"),
+  light: t("themeLight"),
+  dark: t("themeDark"),
+  system: t("themeSystem"),
+};
+
+// 404 只有一个静态 HTML，语言在客户端才确定；两套文案都带上，脚本按 data-locale 选。
+const labelsZh = {
+  group: useTranslations("zh")("themeGroup"),
+  light: useTranslations("zh")("themeLight"),
+  dark: useTranslations("zh")("themeDark"),
+  system: useTranslations("zh")("themeSystem"),
+};
+const labelsEn = {
+  group: useTranslations("en")("themeGroup"),
+  light: useTranslations("en")("themeLight"),
+  dark: useTranslations("en")("themeDark"),
+  system: useTranslations("en")("themeSystem"),
+};
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  data-label-group={labels.group}
+  data-label-light={labels.light}
+  data-label-dark={labels.dark}
+  data-label-system={labels.system}
+  data-label-group-zh={labelsZh.group}
+  data-label-light-zh={labelsZh.light}
+  data-label-dark-zh={labelsZh.dark}
+  data-label-system-zh={labelsZh.system}
+  data-label-group-en={labelsEn.group}
+  data-label-light-en={labelsEn.light}
+  data-label-dark-en={labelsEn.dark}
+  data-label-system-en={labelsEn.system}
+  aria-label={labels.group + ": " + labels.system}
+  title={labels.group + ": " + labels.system}
+  class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border text-muted transition-colors hover:border-accent/60 hover:text-foreground"
+>
+  <svg
+    data-theme-icon="light"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"
+    ></path>
+  </svg>
+  <svg
+    data-theme-icon="dark"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+  </svg>
+  <svg
+    data-theme-icon="system"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+    <path d="M8 20h8M12 16v4"></path>
+  </svg>
+</button>
+
+<script is:inline>
+  (() => {
+    const btn = document.querySelector("[data-theme-toggle]");
+    if (!btn) return;
+
+    const root = document.documentElement;
+    const KEY = "theme";
+    const ORDER = ["light", "dark", "system"];
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const locale = root.dataset.locale === "en" ? "en" : "zh";
+    const labels = {
+      group:
+        btn.getAttribute("data-label-group-" + locale) ||
+        btn.getAttribute("data-label-group") ||
+        "Theme",
+      light:
+        btn.getAttribute("data-label-light-" + locale) ||
+        btn.getAttribute("data-label-light") ||
+        "Light",
+      dark:
+        btn.getAttribute("data-label-dark-" + locale) ||
+        btn.getAttribute("data-label-dark") ||
+        "Dark",
+      system:
+        btn.getAttribute("data-label-system-" + locale) ||
+        btn.getAttribute("data-label-system") ||
+        "System",
+    };
+
+    function apply(theme) {
+      const resolved = ORDER.indexOf(theme) === -1 ? "system" : theme;
+      const dark =
+        resolved === "dark" || (resolved === "system" && mq.matches);
+      root.classList.toggle("dark", dark);
+      root.classList.toggle("light", !dark);
+      root.dataset.theme = resolved;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", dark ? "#0b0f14" : "#f8f9fb");
+      const text = labels.group + ": " + labels[resolved];
+      btn.setAttribute("aria-label", text);
+      btn.setAttribute("title", text);
+    }
+
+    apply(root.dataset.theme || "system");
+
+    btn.addEventListener("click", () => {
+      const current = root.dataset.theme || "system";
+      const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
+      try {
+        localStorage.setItem(KEY, next);
+      } catch (error) {
+        /* 存不了就只改当前页面 */
+      }
+      apply(next);
+    });
+
+    mq.addEventListener("change", () => {
+      if ((root.dataset.theme || "system") === "system") apply("system");
+    });
+  })();
+</script>

@@ -1,41 +1,74 @@
 ---
 import { Image } from "astro:assets";
-import type { Project } from "../lib/projects";
+import type { LocalizedProject } from "../lib/projects";
+import { localizePath, useTranslations } from "../i18n/utils";
+import { projectTypeLabelKey } from "../lib/categories";
+import { formatMonth } from "../lib/format";
+import type { Lang } from "../i18n/ui";
 import Tag from "./Tag.astro";
 
 interface Props {
-  project: Project;
+  project: LocalizedProject;
+  lang: Lang;
   headingLevel?: "h2" | "h3";
 }
 
-const { project, headingLevel = "h3" } = Astro.props;
-const { title, summary, cover, tags } = project.data;
+const { project, lang, headingLevel = "h3" } = Astro.props;
+const { title, summary, cover, tags, type, date } = project.entry.data;
+const t = useTranslations(lang);
 const Heading = headingLevel;
+const typeLabel = t(projectTypeLabelKey(type));
+const visibleTags = tags.slice(0, 3);
+const extraTags = tags.length - visibleTags.length;
 ---
 
 <a
-  href={`/projects/${project.id}`}
-  class="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-accent/60"
+  href={localizePath(`/projects/${project.slug}`, lang)}
+  class="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition-[border-color,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:border-accent/60"
 >
-  <Image
-    src={cover}
-    alt={title}
-    width={800}
-    height={450}
-    loading="lazy"
-    class="aspect-[16/9] w-full object-cover"
-  />
-  <div class="flex flex-1 flex-col p-4">
-    <Heading class="font-semibold tracking-tight group-hover:text-accent">
+  <div class="relative aspect-[16/9] overflow-hidden bg-background">
+    <Image
+      src={cover}
+      alt=""
+      width={800}
+      height={450}
+      widths={[400, 800]}
+      sizes="(min-width: 640px) 50vw, 100vw"
+      loading="lazy"
+      decoding="async"
+      class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.02]"
+    />
+    <span
+      class="absolute right-3 top-3 rounded-full border border-border/70 bg-background/85 px-2.5 py-1 text-[11px] font-medium text-foreground backdrop-blur"
+    >
+      {typeLabel}
+    </span>
+  </div>
+  <div class="flex flex-1 flex-col p-5">
+    <div class="flex items-center justify-between gap-3 text-xs text-muted">
+      <time datetime={date.toISOString()}>{formatMonth(date)}</time>
+      <span
+        class="transition-transform motion-safe:group-hover:translate-x-0.5"
+        aria-hidden="true">↗</span
+      >
+    </div>
+    <Heading
+      class="mt-2 text-lg font-semibold tracking-tight transition-colors group-hover:text-accent sm:text-xl"
+    >
       {title}
     </Heading>
-    <p class="mt-2 flex-1 text-sm text-muted">{summary}</p>
+    <p class="mt-2 line-clamp-2 flex-1 text-sm text-muted">{summary}</p>
     {
       tags.length > 0 && (
-        <div class="mt-4 flex flex-wrap gap-2">
-          {tags.map((tag) => (
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          {visibleTags.map((tag) => (
             <Tag label={tag} />
           ))}
+          {extraTags > 0 && (
+            <span class="inline-flex items-center rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs text-muted">
+              +{extraTags}
+            </span>
+          )}
         </div>
       )
     }

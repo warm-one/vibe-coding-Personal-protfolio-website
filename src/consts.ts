@@ -1,3 +1,5 @@
+import type { Lang } from "./i18n/ui";
+
 export interface SocialLink {
   label: string;
   href: string;
@@ -11,21 +13,14 @@ export interface ExperienceItem {
   summary?: string;
 }
 
-export interface NavItem {
-  label: string;
-  href: string;
-}
-
 export interface SiteConfig {
   name: string;
-  role: string;
-  headline: { lead: string; accent: string };
-  bio: string;
+  role: Record<Lang, string>;
+  headline: Record<Lang, { lead: string; accent: string }>;
+  bio: Record<Lang, string>;
   years: string;
   avatar: string;
   email: string;
-  location?: string;
-  nav: NavItem[];
   socials: SocialLink[];
   skills: string[];
   experience: ExperienceItem[];
@@ -33,21 +28,24 @@ export interface SiteConfig {
 
 export const SITE: SiteConfig = {
   name: "warm",
-  role: "全栈开发者 / Vibe Coder",
-  headline: { lead: "把想法变成", accent: "能用的产品" },
-  bio: "平时用 AI 辅助学习和做东西，这里放我练手做过的项目。",
+  role: {
+    zh: "AI 辅助开发 / 产品实践",
+    en: "AI-assisted Product Builder",
+  },
+  headline: {
+    zh: { lead: "从真实问题出发", accent: "做出能用的工具" },
+    en: { lead: "Start with real problems", accent: "build useful tools" },
+  },
+  bio: {
+    zh: "我从日常的不便里找需求，用 AI 辅助梳理和实现，再把方案做成可以实际体验的产品。",
+    en: "I look for everyday friction, use AI to shape and build a solution, then turn it into something people can try.",
+  },
   years: "",
   avatar: "/avatar.svg",
   email: "1757285503@qq.com",
-  location: "中国",
-  nav: [
-    { label: "首页", href: "/" },
-    { label: "作品", href: "/projects" },
-    { label: "关于", href: "/about" },
-  ],
   socials: [
     { label: "GitHub", href: "https://github.com/warm-one", icon: "github" },
-    { label: "邮箱", href: "mailto:1757285503@qq.com", icon: "mail" },
+    { label: "Email", href: "mailto:1757285503@qq.com", icon: "mail" },
   ],
   skills: [],
   experience: [],

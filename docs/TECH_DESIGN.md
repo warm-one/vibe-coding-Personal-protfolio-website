@@ -1,8 +1,30 @@
-# TECH_DESIGN · 个人作品集网站
+# TECH_DESIGN · 个人作品集网站（重塑版）
 
 > 阶段三产物。输入来自 `docs/PRD.md`。
-> 已定决策：框架 **Astro + React islands**；交互内容**站内实时运行（内嵌 island）**；主题**暗色优先**。
-> 结构：① 技术栈 ② 项目结构 ③ 数据模型 ④ 关键技术点。
+> 已定决策：框架 **Astro + 内联脚本**（React island 能力保留）；多语言 **默认中文、英文加 `/en` 前缀**；主题**默认跟随系统**；翻译**先搭架子**（内容后补）；博客结构一并设计，但**实现不急**。
+> 结构：⓪ 视觉方向 ① 技术栈 ② 依赖与库 ③ 项目结构 ④ 数据模型 ⑤ 模块 / 函数 / 变量定义 ⑥ 关键技术点。
+
+---
+
+## ⓪ 视觉方向（界面类项目先定）
+
+**基调不变**：编辑感、暗色优先、大留白、克制的字距、单一强调色。新增的部分也必须服从这个基调。
+
+**本次要新增的是「浅色主题」**——之前只有暗色。两套共用同一组**语义 token**，只换值：
+
+| 语义 token | 暗色（现状） | 浅色（新增） |
+| --- | --- | --- |
+| background | `#0b0f14` | `#f8f9fb` |
+| surface | `#121821` | `#ffffff` |
+| foreground | `#e6edf3` | `#10151c` |
+| muted | `#9aa7b2` | `#566173` |
+| accent | `#58a6ff` | `#1558d6` |
+| border | `#1f2933` | `#e4e7ec` |
+
+- 浅色的强调色要**更深**（白底上才够对比）；两套都必须过对比度检查。
+- **明确不做**：明暗之外的"花哨主题"（海洋 / 森林…）。主题切换**不加花哨动效**。
+
+**本次前端优化（视觉）**：Hero 右栏从空装饰面板改为「真实作品展示卡」（浏览器窗口 + 封面 + 类型/日期），背景保留网格/柔光；首页顺序改为 Hero → 精选 → 分类 → 关于/联系；作品卡补类型、日期、标签折叠；About 改两栏；Footer 加联系与回到顶部。只改布局与组件，不新增颜色 token。
 
 ---
 
@@ -10,188 +32,251 @@
 
 | 层 | 选型 | 说明 |
 | --- | --- | --- |
-| 构建框架 | **Astro 5.x** | 静态优先，内容页默认零 JS、秒开、SEO 好。 |
-| 交互零件 | **React 19**（`@astrojs/react`） | 每个 demo / 游戏 / 工具作为独立 island，用 React 写，按需水合。 |
-| 内容格式 | **MDX**（`@astrojs/mdx`） | 项目正文里可直接 `import` 并挂载 React 交互组件，内嵌 demo 靠它落地。 |
-| 内容管理 | **Astro Content Collections**（Content Layer + Zod） | 一个 `.mdx` / `.md` 文件 = 一个项目，frontmatter 由 schema 校验。 |
-| 样式 | **Tailwind CSS 4** | 用 CSS-first 的 `@theme` 定义暗色 token；`<html class="dark">` 作默认。 |
-| 图片 | **astro:assets** | 输出 AVIF/WebP、响应式尺寸、懒加载；封面设尺寸防 CLS。 |
-| 语言 | **TypeScript（strict）** | Astro / React 全栈 TS，配合 `astro check`。 |
-| 质量工具 | **ESLint + Prettier** | 统一风格；CI 里跑 lint + `astro check`。 |
-| SEO | **`@astrojs/sitemap`** | 生成 sitemap，配 `robots.txt` 与 OG meta。 |
-| 部署 | **Vercel**（静态输出） | 连 GitHub 自动部署、自带 HTTPS 与预览环境。备选 Netlify。 |
-| 包管理 | **npm** | 保持简单；想更快可换 pnpm。 |
+| 构建框架 | **Astro 7.x** | 沿用现状：静态优先，内容页零 JS、秒开、SEO 好。 |
+| 交互零件 | **原生内联脚本**（React 19 依赖保留，`react()` 集成当前不启用） | 轻交互用约 1KB 内联脚本；当前全站 **0 外部 JS**。需要复杂交互时在 `astro.config` 加回 `react()` 即可。 |
+| 内容格式 | **MDX**（`@astrojs/mdx`） | 作品正文可内嵌交互组件。 |
+| 内容管理 | **Content Collections**（Content Layer + Zod） | 一个文件 = 一个作品 / 一篇文章，frontmatter 由 schema 校验。 |
+| 样式 | **Tailwind CSS 4** | CSS-first 的 `@theme` 定义语义 token；明暗两套值。 |
+| **国际化** | **Astro 内置 i18n 路由**（`astro:i18n`） | **不需要额外依赖**；默认中文无前缀，英文走 `/en`。 |
+| 图片 | **astro:assets** | AVIF/WebP + 响应式 + 懒加载；显式尺寸防 CLS。 |
+| 语言 | **TypeScript（strict）** | 全栈 TS；`astro check` 把关。 |
+| 质量 | **ESLint + Prettier** | 统一风格。 |
+| SEO | **`@astrojs/sitemap`** | 按语言分别输出；配合 hreflang。 |
+| 部署 | **Vercel**（静态输出） | 连 GitHub 自动部署。 |
+| 包管理 | **npm** | 沿用现状。 |
 
-**为什么是 Astro 而不是整站 React**：你的作品集外壳（首页/作品/关于）是内容型、要快；而 demo/游戏/工具是重交互。islands 架构让外壳保持静态零 JS，交互件**按需、按页、各自独立**加载——正好避开「打开首页连游戏引擎一起加载」的陷阱。
+**为什么 i18n 不引第三方库**：Astro 内置了 i18n 路由与工具，社区常见做法就是用它；本站两语言、无复杂复数规则，引入 i18next 之类只会变重。
 
 ---
 
-## 2. 项目结构
+## 2. 依赖与库
+
+**已有（不动）**：`astro`、`@astrojs/react`、`react` / `react-dom`、`@astrojs/mdx`、`@astrojs/sitemap`、`tailwindcss` + `@tailwindcss/vite`、`@tailwindcss/typography`、`zod`、`typescript`、`@astrojs/check`。
+
+**本次新增：无。**
+
+- 多语言 → Astro 内置 i18n，无需包。
+- 主题切换 → 一个小组件 + CSS 变量，无需包。
+- 博客 → 复用 Content Collections，无需包。
+- 翻译 → **先搭架子**，暂不引入翻译脚本（将来要自动翻译再加）。
+
+> 结论：这次是**零新增依赖**的改造，风险低。
+
+---
+
+## 3. 项目结构
 
 ```
 personal-portfolio/
-├─ public/                     # 原样拷贝的静态资源
-│  ├─ favicon.svg
-│  ├─ robots.txt
-│  ├─ og/                      # OG 分享图
-│  └─ resume.pdf               # （后续）简历下载
+├─ public/
+│  ├─ favicon.svg  robots.txt  og/
 ├─ src/
-│  ├─ assets/                  # 参与构建优化的图（头像、封面图）
-│  ├─ components/              # 可复用 UI
-│  │  ├─ Nav.astro             # 顶部导航
-│  │  ├─ Footer.astro          # 页脚（社交 + 版权）
-│  │  ├─ Hero.astro            # 首页主视觉
-│  │  ├─ ProjectCard.astro     # 项目卡片
-│  │  ├─ Tag.astro             # 技术栈标签
-│  │  ├─ Seo.astro             # title/description/OG/canonical
-│  │  └─ islands/              # ← React 交互零件（island）
-│  │     ├─ CopyEmail.tsx      # 一键复制邮箱（轻交互）
-│  │     ├─ demos/             # 复杂交互 demo
-│  │     ├─ games/             # 小游戏（canvas / Phaser / PixiJS）
-│  │     └─ tools/             # 个人工具
+│  ├─ i18n/
+│  │  ├─ ui.ts                  # 界面文案字典（zh / en）
+│  │  └─ utils.ts               # 语言识别、翻译函数、路径工具
+│  ├─ components/
+│  │  ├─ Nav.astro              # 页头（含语言切换 + 主题切换入口）
+│  │  ├─ Footer.astro
+│  │  ├─ Hero.astro  HeroVisual.astro  HeroShowcase.astro  SectionHeader.astro
+│  │  ├─ ProjectCard.astro  Tag.astro  FilterChips.astro  CategoryBrowse.astro
+│  │  ├─ Seo.astro              # 标题/描述/OG/canonical + hreflang + JSON-LD
+│  │  ├─ LangSwitch.astro       # 语言切换（保留当前页）
+│  │  ├─ ThemeToggle.astro      # 三态主题切换（内联脚本，零外部 JS）
+│  │  ├─ CopyEmail.astro        # 复制邮箱（内联脚本 + mailto 降级）
+│  │  ├─ PostCard.astro         # 博客卡片（新增）
+│  │  └─ islands/               # 仅复杂交互使用；当前为空，React 能力保留
 │  ├─ content/
-│  │  └─ projects/             # 一个文件 = 一个项目
-│  │     ├─ project-a.mdx
-│  │     └─ project-b.mdx
-│  ├─ content.config.ts        # Content Collections 的 Zod schema
-│  ├─ layouts/
-│  │  ├─ BaseLayout.astro      # <html> 壳、全局样式、SEO、导航/页脚
-│  │  └─ ProjectLayout.astro   # 项目详情页壳
-│  ├─ pages/
-│  │  ├─ index.astro           # 首页（Hero + 精选项目 + 关于摘要 + 联系）
 │  │  ├─ projects/
-│  │  │  ├─ index.astro        # 作品列表
-│  │  │  └─ [slug].astro       # 项目详情（getStaticPaths 生成）
-│  │  ├─ about.astro           # 关于我
+│  │  │  ├─ zh/project-web.mdx  # 一个文件 = 一个作品的一种语言
+│  │  │  └─ en/project-web.mdx
+│  │  └─ blog/                  # （新增）
+│  │     ├─ zh/*.mdx
+│  │     └─ en/*.mdx
+│  ├─ content.config.ts         # projects / blog 的 Zod schema
+│  ├─ layouts/
+│  │  ├─ BaseLayout.astro       # <html> 壳、明暗初始化、SEO、导航/页脚
+│  │  └─ ProjectLayout.astro
+│  ├─ lib/
+│  │  ├─ projects.ts            # 取作品、按语言、回退
+│  │  ├─ posts.ts               # 取文章（新增，同 projects）
+│  │  ├─ categories.ts          # 分类元数据
+│  │  └─ format.ts               # 日期格式化（UTC）
+│  ├─ pages/
+│  │  ├─ [...lang]/
+│  │  │  ├─ index.astro
+│  │  │  ├─ about.astro
+│  │  │  ├─ projects/index.astro
+│  │  │  ├─ projects/[slug].astro
+│  │  │  ├─ projects/category/[category].astro
+│  │  │  ├─ blog/index.astro    # （新增）
+│  │  │  └─ blog/[slug].astro   # （新增）
 │  │  └─ 404.astro
-│  ├─ styles/
-│  │  └─ global.css            # Tailwind 入口 + @theme 暗色 token
-│  └─ consts.ts                # 站点配置（姓名/社交/导航/技能/经历）
-├─ astro.config.mjs            # integrations: react / mdx / sitemap
+│  ├─ styles/global.css         # Tailwind + 明暗 token；@source 排除 public/demos
+│  └─ consts.ts                 # 站点配置（姓名/社交/技能/经历）
+├─ astro.config.mjs             # integrations + i18n 配置
 ├─ tsconfig.json
 └─ package.json
 ```
 
 **每层职责**
-- `components/*.astro`：静态、无 JS 的展示层（默认零成本）。
-- `components/islands/**`：需要交互的零件，**唯一允许出 JS 的地方**，用 React 写。
-- `content/projects/**`：作品数据源，加作品只在这一层动。
-- `pages/**`：路由与页面组装，从 collection 取数据。
-- `consts.ts`：站点的唯一"个人信息源"，改名字/社交只改这里。
+- `i18n/`：**所有界面文案与语言逻辑的唯一出处**，组件不写死文字。
+- `components/*.astro`：静态展示层（零 JS）。
+- `components/islands/**`：复杂 React island 的预留位置；轻交互（主题/复制）用组件内 `<script is:inline>` 完成，**不引入框架运行时**。
+- `content/<集合>/<语言>/`：内容数据源，**加内容只在这一层动**。
+- `pages/[...lang]/**`：路由与组装；一个模板同时产出两种语言。
+- `lib/`：取数与纯逻辑，页面不直接读 collection。
 
 ---
 
-## 3. 数据模型
+## 4. 数据模型
 
-### 3.1 Project（Content Collection，来自 frontmatter）
+### 4.1 Project（Content Collection，frontmatter）
+
+在现有字段上**新增 `lang`**；语言由所在目录决定（见结构）。其余不变。
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| `title` | `string` | ✅ | 项目标题 |
+| `title` | `string` | ✅ | 标题 |
 | `summary` | `string` | ✅ | 一句话简介 |
-| `cover` | `image` | ✅ | 封面图（构建时优化） |
-| `date` | `Date` | ✅ | 日期，用于倒序排序 |
-| `tags` | `string[]` | ⬜ | 技术栈标签，默认 `[]` |
-| `type` | `'web' \| 'game' \| 'tool' \| 'other'` | ⬜ | 分类，默认 `web`（新增，用于区分游戏/工具） |
-| `featured` | `boolean` | ⬜ | 是否精选（首页置顶），默认 `false` |
-| `links` | `{ github?: string; demo?: string }` | ⬜ | 外链，默认 `{}` |
-| `gallery` | `image[]` | ⬜ | 详情页多图，默认 `[]` |
-| 正文 | MDX | ⬜ | 背景 / 我做了什么 / 结果；**内嵌 demo 就写在这里** |
+| `cover` | `image` | ✅ | 封面 |
+| `date` | `Date` | ✅ | 排序用 |
+| `lang` | `'zh' \| 'en'` | ✅ | 语种（新增） |
+| `tags` | `string[]` | ⬜ | 默认 `[]` |
+| `type` | `'web' \| 'game' \| 'tool' \| 'other'` | ⬜ | 默认 `web` |
+| `featured` | `boolean` | ⬜ | 默认 `false` |
+| `links` | `{ github?: string; demo?: string }` | ⬜ | 默认 `{}` |
+| `embed` | `string` | ⬜ | 站内可运行 demo 的路径（如 `/demos/markdown/`）；有则详情页出「在线体验」 |
+| `gallery` | `image[]` | ⬜ | 默认 `[]` |
+| 正文 | MDX | ⬜ | 背景 / 我做了什么 / 结果 |
 
-Zod schema 示例（`src/content.config.ts`）：
+### 4.2 BlogPost（新增集合）
 
-```ts
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `title` | `string` | ✅ | 文章标题 |
+| `summary` | `string` | ✅ | 摘要（列表页显示） |
+| `date` | `Date` | ✅ | 发布时间，列表倒序 |
+| `lang` | `'zh' \| 'en'` | ✅ | 语种 |
+| `cover` | `image` | ⬜ | 可选封面 |
+| `tags` | `string[]` | ⬜ | 默认 `[]` |
+| `draft` | `boolean` | ⬜ | 默认 `false`；为真则不出现在列表 |
+| 正文 | MDX | ⬜ | 长文 |
 
-const projects = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      summary: z.string(),
-      cover: image(),
-      date: z.coerce.date(),
-      tags: z.array(z.string()).default([]),
-      type: z.enum(['web', 'game', 'tool', 'other']).default('web'),
-      featured: z.boolean().default(false),
-      links: z
-        .object({ github: z.string().url().optional(), demo: z.string().url().optional() })
-        .default({}),
-      gallery: z.array(image()).default([]),
-    }),
-});
-
-export const collections = { projects };
-```
-
-### 3.2 SiteConfig（`src/consts.ts`）
+### 4.3 其它类型
 
 ```ts
-export interface SocialLink { label: string; href: string; icon: string }
+export type Lang = "zh" | "en";
+export type Theme = "light" | "dark" | "system";
 
-export interface ExperienceItem {
-  company: string;
-  role: string;
-  period: string;   // 如 "2024.03 - 至今"
-  summary?: string;
-}
-
-export interface NavItem { label: string; href: string }
-
-export interface SiteConfig {
-  name: string;              // 姓名
-  role: string;              // 一句话定位 / tagline
-  bio: string;               // 自我介绍（短）
-  avatar: string;            // 头像路径
-  email: string;             // 联系邮箱
-  location?: string;
-  nav: NavItem[];            // 顶部导航
-  socials: SocialLink[];     // 社交链接
-  skills: string[];          // 技能标签
-  experience: ExperienceItem[];
+// 内容在另一语言缺失时的标记
+export interface Localized<T> {
+  data: T;
+  lang: Lang;
+  fallback: boolean; // true = 当前语言没有，回退显示了另一种
 }
 ```
 
 ---
 
-## 4. 关键技术点
+## 5. 模块 / 函数 / 变量定义
 
-**难点 1 · 内容驱动：一个文件 = 一个项目**
-- **解法**：Content Collections + Zod schema。frontmatter 缺字段会在**构建时报错**，保证每个项目字段一致。
-- 列表页 `getCollection('projects')` 排序（`date` 倒序，`featured` 置顶）；详情页用 `getStaticPaths()` + `[slug].astro` 静态生成。
+### `src/i18n/ui.ts`
+```ts
+export const ui = {
+  zh: { navHome: "首页", navProjects: "作品", navAbout: "关于", navBlog: "博客",
+        themeLight: "浅色", themeDark: "暗色", themeSystem: "跟随系统" /* … */ },
+  en: { navHome: "Home", navProjects: "Work", navAbout: "About", navBlog: "Writing",
+        themeLight: "Light", themeDark: "Dark", themeSystem: "System" /* … */ },
+} as const;
 
-**难点 2 · 岛屿加载策略（性能核心）**
-- **解法**：React island 一律用 **`client:visible`**（滚到视口才加载），而不是 `client:load`。轻交互（复制邮箱）用 `client:idle` 或纯 Astro `<script>`。
-- 效果：每个 demo/游戏/工具**独立打包、按页按需加载**，首页永远不会背上游戏引擎的包袱。
+export const defaultLang: Lang = "zh";
+export const locales: Lang[] = ["zh", "en"];
+export type UIKey = keyof (typeof ui)[typeof defaultLang];
+```
 
-**难点 3 · 内嵌 demo / 游戏怎么落地**
-- **解法**：用 **MDX**。项目正文里直接：
-  ```mdx
-  import Snake from '../../components/islands/games/Snake.tsx'
-  <Snake client:visible />
-  ```
-- 游戏/渲染用 canvas（Phaser / PixiJS / 原生），外层用 React 包一层；在 React 的 `useEffect` 里做挂载/卸载，**务必清理事件与 RAF**，避免内存泄漏。
-- 想更省事也可以把整块用 iframe 指向独立路径，但已定「站内内嵌」，优先走 island。
+### `src/i18n/utils.ts`
+```ts
+getLangFromUrl(url: URL): Lang                       // /en/... → "en"，否则 "zh"
+useTranslations(lang: Lang): (key: UIKey) => string  // t("navHome")
+localizePath(path: string, lang: Lang): string       // "/about" + "en" → "/en/about"
+getAlternatePath(url: URL, target: Lang): string     // 当前页在目标语言下的地址
+getLangStaticPaths(): { params: { lang: string | undefined } }[]  // 供各页 getStaticPaths 用
+```
 
-**难点 4 · 暗色优先的主题系统**
-- **解法**：Tailwind 4 用 `@theme` 定义**语义化颜色 token**（`--color-bg` / `surface` / `text` / `muted` / `accent`），暗色值作默认，`<html class="dark">`。
-- 后续加浅色 + 切换按钮时，只补一套 token 即可，不用改组件。
+### `src/lib/format.ts`
+```ts
+formatMonth(date: Date): string              // 2026.10（UTC）
+formatLongDate(date: Date, lang: Lang): string
+```
 
-**难点 5 · 图片优化与首屏稳定**
-- **解法**：`astro:assets` 的 `<Image>` 输出 AVIF/WebP + 响应式尺寸 + `loading="lazy"`；封面**显式给 width/height** 防布局抖动（CLS）。首屏 Hero 图用 `priority` 不加 lazy。
+### `src/lib/projects.ts` / `posts.ts`
+```ts
+getProjects(lang: Lang): Localized<Project>[]     // 排序：date 倒序、featured 置顶；缺英则回退中文
+getProject(lang: Lang, slug: string): Localized<Project> | undefined
+getPosts(lang: Lang): Localized<BlogPost>[]       // 过滤 draft
+```
 
-**难点 6 · SEO 与可访问性**
-- **解法**：`BaseLayout` 统一注入 `title` / `description` / OG / canonical；`@astrojs/sitemap` + `robots.txt`。语义化标签、图片 `alt`、键盘可导航、对比度达标。
+### `src/components/ThemeToggle.astro` / `CopyEmail.astro`
+- `ThemeToggle`：props 只有 `lang`（文案走 i18n）。读 / 写 `localStorage["theme"]`，只改 `<html>` 的 class、`data-theme` 与 `<meta name="theme-color">`，**不触发整页重渲染**；系统偏好变化时自动跟随。
+- `CopyEmail`：props 为 `email / copyLabel / copiedLabel`。默认是 `mailto:` 链接（无 JS 也可用），JS 只负责“点击复制 + 状态提示”。
+- 两者都用 `<script is:inline>`（各约 1KB），**不加载 React**。
 
-**难点 7 · 类型与代码质量**
-- **解法**：TypeScript strict；每次改动跑 `astro check` 类型检查，配合 ESLint + Prettier；部署前跑一次 `astro build` 确认可产出。
+### `src/components/LangSwitch.astro`
+- props：`lang: Lang`。
+- 链接由 `getAlternatePath(Astro.url, other)` 算出，**保持当前页**。
 
 ---
 
-## 附：搭建时需要的依赖（供实现阶段参考）
+## 6. 关键技术点
 
-```
-astro  @astrojs/react  @astrojs/mdx  @astrojs/sitemap  tailwindcss  @tailwindcss/vite
-react  react-dom  typescript  astro-icon（可选）
-```
+**难点 1 · i18n 路由：默认语言不带前缀**
+- **解法**：`astro.config` 配 `i18n: { locales: ['zh','en'], defaultLocale: 'zh', routing: { prefixDefaultLocale: false } }`。
+- 所有页面放 `src/pages/[...lang]/`，用 `getLangStaticPaths()` 同时产出「无前缀」与 `/en` 两版。**一个模板管两种语言**，不复制页面。
+
+**难点 2 · 主题切换不闪烁（本次核心）**
+- **解法**：在 `BaseLayout` 的 `<head>` 里放一段**极小、内联、阻塞**的脚本，在首屏绘制前读 `localStorage`；没有存过就按 `prefers-color-scheme`（跟随系统）决定，然后给 `<html>` 加上 `light` / `dark` class，同时写入 `data-theme`、`data-locale` 与 `theme-color`。
+- 关键：**脚本必须在 CSS 之前、且是内联的**（外链脚本会晚一拍 → 闪一下）。这是"不闪烁"的唯一可靠做法。
+
+**难点 3 · 明暗两套 token**
+- **解法**：Tailwind 4 里 `@theme` 定义浅色值；`.dark` 选择器覆盖为暗色值；再加 `@custom-variant dark (&:where(.dark, .dark *))` 以支持 `dark:` 工具类。
+- 组件**只消费语义 token**（`bg-background` / `text-muted` …），永远不写死颜色 → 加主题不用改组件。
+
+**难点 4 · 语言切换保留当前页**
+- **解法**：`LangSwitch` 不写死首页链接，而是用 `getAlternatePath(Astro.url, target)` 算出**当前页**在另一语言下的地址。比如在 `/projects/project-web` 切英文 → `/en/projects/project-web`。
+
+**难点 5 · 内容双语与回退**
+- **解法**：内容按语言分目录存放；`lib/projects.ts` 先找当前语言的条目，找不到就回退中文，并把 `fallback: true` 传给页面，页面上给一句轻提示（而不是 404）。
+- 本次**只搭架子**：英文目录先放占位，翻译后续补（可用机器翻译贴入）。
+
+**难点 6 · SEO：两语言各自可索引**
+- **解法**：`Seo.astro` 输出 canonical / hreflang / x-default / OG / Twitter 标签；首页额外输出 `WebSite + Person` JSON-LD，404 输出 `noindex`。
+- `og:image` 用 **1200×630 PNG**（`public/og/default.png`，由 `scripts/make-og.py` 生成）；作品封面是 SVG 时自动回退到这张默认图（社交平台普遍不解析 SVG）。作品页输出 `og:type=article`、`article:published_time`，光栅封面带上真实的 `og:image:width/height/type`。
+- `@astrojs/sitemap` 配 `i18n` 选项，让 sitemap 带 `xhtml:link` 语言关系；中文为主线（x-default）。
+
+**难点 7 · 404 的多语言**
+- **解法**：静态托管只认一个 `404.html`，无法在构建期知道访客语言。`<head>` 内联脚本先按 `location.pathname` 前缀（`/en/…`）写 `data-locale`、`<html lang>`；CSS 用 `html[data-locale="en"] [data-404-lang="zh"]` 在首屏前隐藏另一种语言，页尾脚本再补 `document.title` / description。页头用最小版（品牌 + 语言入口 + 主题），不渲染错误语言的导航。
+
+**难点 8 · 博客复用同一套机制（结构先就位）**
+- **解法**：`blog` 集合与 `projects` 同构（同 `lang`、同目录约定、同样的列表/详情/排序），页面复用 `ProjectCard` 的思路做 `PostCard`。**实现放后**，但结构、路由、schema 现在定好，之后直接加文件即可。
+
+**难点 9 · 站内可运行 demo（独立技术栈的应用）**
+- **问题**：要放进来的应用可能是另一种技术栈（例如 React 18 + Tailwind 3），而本站是 React 19 + Tailwind 4；拆成组件会版本打架。
+- **解法**：**不拆组件**，把它当**独立静态应用**——用 `base=/demos/<name>/` 重新构建，产物放 `public/demos/<name>/`，同一个部署下经 `/demos/<name>/` 访问；项目详情页先显示「加载在线体验」按钮，点击后再插入 `<iframe loading="lazy">`，另给「在新标签打开」。
+- **为什么用 iframe**：两个独立文档，React / Tailwind 版本互不干扰；点击后才创建 iframe，避免首屏加载 demo 的 ~140KB JS。
+- **维护**：演示源码留在原仓库，用 `scripts/sync-demo.ps1` 重新构建并同步产物；另外 `tsconfig.json` 的 `exclude` 必须含 `public`，否则类型检查会去扫压缩后的第三方 JS。
+
+**难点 10 · 主页面零外部 JS（`/demos/*` 独立 demo 除外）**
+- **解法**：不再为轻交互加载框架运行时。主题切换、复制邮箱各用一个 `<script is:inline>`（约 1KB）实现；首屏初始化脚本 + JSON-LD 之外，站点主页面没有外链 JS。
+- **验证**：构建后逐页扫描 `dist/**/*.html`，`<script src>` 数量为 0；React 依赖仍在，但 `astro.config` 当前不启用 `react()` 集成（避免产出 220KB 未被引用的 client 包）。需要复杂交互时加回 `react()` 即可。
+- **样式体积**：`global.css` 用 `@source not "../../public";` 排除 `public/demos` 的 class 扫描，避免 demo 的 Tailwind class 撑大站点 CSS。
+
+**难点 11 · 可访问性细节**
+- **解法**：`<head>` 后第一个可聚焦元素是「跳到主要内容」skip link；全局 `:focus-visible` 用 2px accent 描边；导航用 `aria-current="page"`；文字链接补垂直 padding，保证指针目标 ≥ 24×24（WCAG 2.2 AA）；`prefers-reduced-motion` 下关闭平滑滚动与过渡。
+- 正文（MDX）通过 `--tw-prose-*` 映射到语义 token，明暗两套都过对比度检查。
+
+---
+
+## 附：本次不做（属 PRD 的「后续」）
+
+- 访问统计、简历下载、标签筛选/搜索、联系表单、页面过渡动画、文章评论。
+- 自动翻译脚本（先搭架子，要自动化时再引依赖，需联网与 API key）。

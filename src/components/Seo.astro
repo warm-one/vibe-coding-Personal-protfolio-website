@@ -1,28 +1,112 @@
 ---
 import { SITE } from "../consts";
+import { defaultLang, hreflang, locales, type Lang } from "../i18n/ui";
+import { getAlternatePath } from "../i18n/utils";
+
+type OpenGraphType = "website" | "article";
 
 interface Props {
   title: string;
   description: string;
+  lang: Lang;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageType?: string;
+  type?: OpenGraphType;
+  publishedTime?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
 }
 
-const { title, description, image = "/og/default.svg" } = Astro.props;
-const fullTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const {
+  title,
+  description,
+  lang,
+  image = "/og/default.png",
+  imageWidth,
+  imageHeight,
+  imageType,
+  type = "website",
+  publishedTime,
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const fullTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`;
+const withTrailingSlash = (path: string) =>
+  path.endsWith("/") ? path : `${path}/`;
+const canonical = new URL(withTrailingSlash(Astro.url.pathname), Astro.site);
+
+const alternates = locales.map((locale) => ({
+  lang: locale,
+  href: new URL(
+    withTrailingSlash(getAlternatePath(Astro.url, locale)),
+    Astro.site,
+  ),
+}));
+const xDefault = alternates.find((alt) => alt.lang === defaultLang);
+const otherLocale = lang === "zh" ? "en_US" : "zh_CN";
+
 const ogImage = new URL(image, Astro.site);
+const isDefaultImage = image === "/og/default.png";
+const resolvedWidth = imageWidth ?? (isDefaultImage ? 1200 : undefined);
+const resolvedHeight = imageHeight ?? (isDefaultImage ? 630 : undefined);
+const resolvedType = imageType ?? (isDefaultImage ? "image/png" : undefined);
 ---
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={canonical} />
-<meta property="og:type" content="website" />
+<meta name="author" content={SITE.name} />
+{
+  !noindex && (
+    <>
+      <link rel="canonical" href={canonical} />
+      {alternates.map((alt) => (
+        <link
+          rel="alternate"
+          hreflang={hreflang[alt.lang]}
+          href={alt.href}
+        />
+      ))}
+      {xDefault && (
+        <link rel="alternate" hreflang="x-default" href={xDefault.href} />
+      )}
+    </>
+  )
+}
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+<meta property="og:type" content={type} />
 <meta property="og:site_name" content={SITE.name} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
+<meta property="og:locale" content={lang === "zh" ? "zh_CN" : "en_US"} />
+<meta property="og:locale:alternate" content={otherLocale} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={fullTitle} />
+{
+  resolvedWidth && (
+    <meta property="og:image:width" content={String(resolvedWidth)} />
+  )
+}
+{
+  resolvedHeight && (
+    <meta property="og:image:height" content={String(resolvedHeight)} />
+  )
+}
+{resolvedType && <meta property="og:image:type" content={resolvedType} />}
+{
+  type === "article" && publishedTime && (
+    <meta property="article:published_time" content={publishedTime} />
+  )
+}
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
-<meta name="theme-color" content="#0b0f14" />
+<meta name="twitter:image" content={ogImage} />
+{
+  jsonLd && (
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  )
+}

@@ -8,14 +8,17 @@ interface Chip {
 interface Props {
   items: Chip[];
   active?: string;
+  allLabel: string;
+  allHref: string;
+  navLabel: string;
 }
 
-const { items, active = "all" } = Astro.props;
+const { items, active = "all", allLabel, allHref, navLabel } = Astro.props;
 
-const chips: Chip[] = [{ key: "all", label: "全部", href: "/projects" }, ...items];
+const chips: Chip[] = [{ key: "all", label: allLabel, href: allHref }, ...items];
 ---
 
-<nav aria-label="作品分类" class="flex flex-wrap gap-2">
+<nav aria-label={navLabel} class="flex flex-wrap gap-2">
   {
     chips.map((chip) => {
       const isActive = active === chip.key;

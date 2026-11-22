@@ -1,28 +1,79 @@
 ---
 import { SITE } from "../consts";
+import ThemeToggle from "./ThemeToggle.astro";
+import LangSwitch from "./LangSwitch.astro";
+import { localizePath, useTranslations } from "../i18n/utils";
+import type { Lang } from "../i18n/ui";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const homeHref = localizePath("/", lang);
+const links = [
+  { label: t("navHome"), href: homeHref, match: true },
+  { label: t("navProjects"), href: localizePath("/projects", lang), match: true },
+  { label: t("navAbout"), href: localizePath("/about", lang), match: true },
+  {
+    label: t("contactTitle"),
+    href: localizePath("/about#contact", lang),
+    match: false,
+  },
+];
+
+const pathname = Astro.url.pathname;
+const normalized =
+  pathname.length > 1 && pathname.endsWith("/")
+    ? pathname.slice(0, -1)
+    : pathname;
+
+function isActive(href: string) {
+  if (href === homeHref) return normalized === href;
+  return normalized === href || normalized.startsWith(href + "/");
+}
 ---
 
 <header
   class="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur"
 >
   <nav
-    aria-label="主导航"
-    class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6"
+    aria-label={t("navLabel")}
+    class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6"
   >
-    <a href="/" class="font-semibold tracking-tight">{SITE.name}</a>
-    <ul class="flex items-center gap-4 text-sm text-muted">
-      {
-        SITE.nav.map((item) => (
-          <li>
-            <a
-              href={item.href}
-              class="transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <a
+      href={homeHref}
+      class="shrink-0 font-semibold tracking-tight whitespace-nowrap"
+    >
+      {SITE.name}<span class="text-accent" aria-hidden="true">.</span>
+    </a>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <ul class="flex items-center gap-3 text-[13px] text-muted sm:gap-4 sm:text-sm">
+        {
+          links.map((item, index) => {
+            const active = item.match && isActive(item.href);
+            return (
+              <li class:list={[index === 0 && "hidden sm:block"]}>
+                <a
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  class:list={[
+                    "relative inline-block -my-1.5 whitespace-nowrap py-1.5 transition-colors hover:text-foreground",
+                    "after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform hover:after:scale-x-100",
+                    active && "text-foreground after:scale-x-100",
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+      <LangSwitch lang={lang} />
+      <ThemeToggle lang={lang} />
+    </div>
   </nav>
 </header>

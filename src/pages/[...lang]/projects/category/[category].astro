@@ -1,0 +1,103 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import ProjectCard from "../../../../components/ProjectCard.astro";
+import FilterChips from "../../../../components/FilterChips.astro";
+import {
+  CATEGORIES,
+  categoriesWithCounts,
+  categoryBlurbKey,
+  categoryHref,
+  categoryLabelKey,
+} from "../../../../lib/categories";
+import { getProjects } from "../../../../lib/projects";
+import { defaultLang } from "../../../../i18n/ui";
+import {
+  getLangFromUrl,
+  getLangStaticPaths,
+  localizePath,
+  useTranslations,
+} from "../../../../i18n/utils";
+
+export async function getStaticPaths() {
+  // 只为真的有作品的分类建页，避免 sitemap 里出现 0 个项目的空页面
+  const projects = await getProjects(defaultLang);
+  const active = new Set(projects.map((project) => project.entry.data.type));
+  return getLangStaticPaths().flatMap((lang) =>
+    CATEGORIES.filter((category) => active.has(category.key)).map(
+      (category) => ({
+        params: { ...lang.params, category: category.key },
+      }),
+    ),
+  );
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const raw = Astro.params.category ?? "";
+const current = CATEGORIES.find((category) => category.key === raw);
+
+if (!current) {
+  throw new Error(`Unknown category: ${raw}`);
+}
+
+const all = await getProjects(lang);
+const projects = all.filter((project) => project.entry.data.type === current.key);
+
+const chips = categoriesWithCounts(
+  all.map((project) => ({ data: project.entry.data })),
+)
+  .filter((category) => category.count > 0)
+  .map((category) => ({
+    key: category.key,
+    label: t(categoryLabelKey(category.key)),
+    href: categoryHref(category.key, lang),
+  }));
+
+const projectNames = projects
+  .map((project) => project.entry.data.title)
+  .join(lang === "zh" ? "、" : ", ");
+const description = `${t(categoryLabelKey(current.key))} · ${t("projectsMeta")
+  .replace("{count}", String(projects.length))
+  .replace("{names}", projectNames)}`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={t(categoryLabelKey(current.key))}
+  description={description}
+>
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+      {t(categoryLabelKey(current.key))}
+    </h1>
+    <p class="mt-4 text-muted">
+      {t(categoryBlurbKey(current.key))} · {t("projectsCount").replace(
+        "{count}",
+        String(projects.length),
+      )}
+    </p>
+
+    <div class="mt-6">
+      <FilterChips
+        items={chips}
+        active={current.key}
+        allLabel={t("filterAll")}
+        allHref={localizePath("/projects", lang)}
+        navLabel={t("categoryNav")}
+      />
+    </div>
+
+    {
+      projects.length > 0 ? (
+        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+          {projects.map((project) => (
+            <ProjectCard project={project} lang={lang} headingLevel="h2" />
+          ))}
+        </div>
+      ) : (
+        <p class="mt-8 text-muted">{t("emptyProjects")}</p>
+      )
+    }
+  </section>
+</BaseLayout>

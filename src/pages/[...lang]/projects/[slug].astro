@@ -1,0 +1,37 @@
+---
+import { render } from "astro:content";
+import ProjectLayout from "../../../layouts/ProjectLayout.astro";
+import {
+  getAllProjectSlugs,
+  getProject,
+  getProjects,
+} from "../../../lib/projects";
+import { getLangFromUrl, getLangStaticPaths } from "../../../i18n/utils";
+
+export async function getStaticPaths() {
+  const slugs = await getAllProjectSlugs();
+  const langs = getLangStaticPaths();
+  return langs.flatMap((lang) =>
+    slugs.map((slug) => ({ params: { ...lang.params, slug } })),
+  );
+}
+
+const lang = getLangFromUrl(Astro.url);
+const slug = Astro.params.slug ?? "";
+const project = await getProject(lang, slug);
+
+if (!project) {
+  throw new Error(`Unknown project: ${slug}`);
+}
+
+const sorted = await getProjects(lang);
+const index = sorted.findIndex((item) => item.slug === slug);
+const prev = index > 0 ? sorted[index - 1] : null;
+const next = index >= 0 && index < sorted.length - 1 ? sorted[index + 1] : null;
+
+const { Content } = await render(project.entry);
+---
+
+<ProjectLayout project={project} prev={prev} next={next} lang={lang}>
+  <Content />
+</ProjectLayout>

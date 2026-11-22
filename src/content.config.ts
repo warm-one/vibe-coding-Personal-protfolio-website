@@ -10,6 +10,8 @@ const projects = defineCollection({
       summary: z.string(),
       cover: image(),
       date: z.coerce.date(),
+      lang: z.enum(["zh", "en"]),
+      embed: z.string().optional(),
       tags: z.array(z.string()).default([]),
       type: z.enum(["web", "game", "tool", "other"]).default("web"),
       featured: z.boolean().default(false),

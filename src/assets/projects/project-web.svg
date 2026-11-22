@@ -1,5 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" role="img" aria-label="Project cover placeholder">
-  <rect width="800" height="450" fill="#121821" />
-  <rect x="1" y="1" width="798" height="448" fill="none" stroke="#1f2933" stroke-width="2" />
-  <text x="400" y="235" fill="#58a6ff" font-family="system-ui, sans-serif" font-size="40" text-anchor="middle">Web Project</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" role="img" aria-label="warm personal portfolio cover">
+  <defs>
+    <radialGradient id="gold" cx="78%" cy="8%" r="58%">
+      <stop offset="0" stop-color="#d6a84a" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#d6a84a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="teal" cx="8%" cy="92%" r="52%">
+      <stop offset="0" stop-color="#2dc4b4" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#2dc4b4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blue" cx="52%" cy="108%" r="62%">
+      <stop offset="0" stop-color="#58a6ff" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#58a6ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141b25"/>
+      <stop offset="1" stop-color="#0d1219"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#e6edf3" stroke-opacity="0.055"/>
+    </pattern>
+    <clipPath id="window">
+      <rect x="90" y="62" width="620" height="326" rx="18"/>
+    </clipPath>
+  </defs>
+
+  <rect width="800" height="450" fill="#0b0f14"/>
+  <rect width="800" height="450" fill="url(#gold)"/>
+  <rect width="800" height="450" fill="url(#teal)"/>
+  <rect width="800" height="450" fill="url(#blue)"/>
+  <rect width="800" height="450" fill="url(#grid)"/>
+
+  <g clip-path="url(#window)">
+    <rect x="90" y="62" width="620" height="326" fill="url(#panel)"/>
+    <rect x="90" y="62" width="620" height="38" fill="#0b0f14" fill-opacity="0.55"/>
+    <circle cx="116" cy="81" r="4.5" fill="#566173"/>
+    <circle cx="134" cy="81" r="4.5" fill="#566173"/>
+    <circle cx="152" cy="81" r="4.5" fill="#566173"/>
+    <rect x="176" y="73" width="300" height="16" rx="8" fill="#0b0f14" fill-opacity="0.85"/>
+    <text x="190" y="85" fill="#9aa7b2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10">warm / projects / portfolio</text>
+    <text x="680" y="85" fill="#566173" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" text-anchor="end">v1.0</text>
+
+    <text x="122" y="146" fill="#58a6ff" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="11" font-weight="600" letter-spacing="2">AI 辅助产品开发</text>
+    <text x="122" y="202" fill="#e6edf3" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="39" font-weight="700">从真实问题出发</text>
+    <text x="122" y="250" fill="#9aa7b2" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="39" font-weight="700">做出能用的工具</text>
+    <rect x="122" y="274" width="58" height="3" rx="1.5" fill="#58a6ff"/>
+    <text x="122" y="302" fill="#9aa7b2" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="12">从日常不便里找需求，用 AI 辅助实现并交付可体验的作品。</text>
+
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11">
+      <rect x="122" y="318" width="52" height="24" rx="12" fill="#0b0f14" stroke="#2a3441"/>
+      <text x="148" y="334" fill="#9aa7b2" text-anchor="middle">Astro</text>
+      <rect x="182" y="318" width="52" height="24" rx="12" fill="#0b0f14" stroke="#2a3441"/>
+      <text x="208" y="334" fill="#9aa7b2" text-anchor="middle">React</text>
+      <rect x="242" y="318" width="86" height="24" rx="12" fill="#0b0f14" stroke="#2a3441"/>
+      <text x="285" y="334" fill="#9aa7b2" text-anchor="middle">TypeScript</text>
+    </g>
+
+    <rect x="494" y="116" width="184" height="238" rx="16" fill="#0a0d12" stroke="#1f2933"/>
+    <rect x="494" y="116" width="184" height="238" rx="16" fill="url(#blue)"/>
+    <rect x="512" y="138" width="148" height="86" rx="10" fill="#141b25" stroke="#2a3441"/>
+    <text x="528" y="174" fill="#58a6ff" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="10">01 · 发现需求</text>
+    <text x="528" y="194" fill="#e6edf3" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="10">02 · AI 协作构建</text>
+    <text x="528" y="210" fill="#566173" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="10">03 · 在线体验</text>
+    <rect x="512" y="238" width="148" height="1" fill="#1f2933"/>
+    <text x="512" y="266" fill="#566173" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="10">SELECTED PROJECTS</text>
+    <text x="512" y="298" fill="#e6edf3" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="15" font-weight="600">2 个作品</text>
+    <text x="512" y="320" fill="#9aa7b2" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="10">需求 · 实现 · 可运行结果</text>
+  </g>
+
+  <rect x="90" y="62" width="620" height="326" rx="18" fill="none" stroke="#1f2933"/>
 </svg>

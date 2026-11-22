@@ -4,30 +4,146 @@ import { SITE } from "../consts";
 import Seo from "../components/Seo.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
+import { getLangFromUrl, localizePath, useTranslations } from "../i18n/utils";
+import { languages, type Lang } from "../i18n/ui";
+import ThemeToggle from "../components/ThemeToggle.astro";
 
 interface Props {
+  lang?: Lang;
   title?: string;
   description?: string;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageType?: string;
+  type?: "website" | "article";
+  publishedTime?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
+  nav?: "full" | "minimal";
+  footer?: boolean;
 }
 
-const { title = SITE.name, description = SITE.bio, image } = Astro.props;
+const lang = Astro.props.lang ?? getLangFromUrl(Astro.url);
+const title = Astro.props.title ?? SITE.name;
+const description = Astro.props.description ?? SITE.bio[lang];
+const {
+  image,
+  imageWidth,
+  imageHeight,
+  imageType,
+  type = "website",
+  publishedTime,
+  noindex = false,
+  jsonLd,
+  nav = "full",
+  footer = true,
+} = Astro.props;
+const t = useTranslations(lang);
 ---
 
 <!doctype html>
-<html lang="zh-CN" class="dark">
+<html lang={lang === "zh" ? "zh-CN" : "en"}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <Seo title={title} description={description} image={image} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f8f9fb" />
+    <Seo
+      title={title}
+      description={description}
+      image={image}
+      imageWidth={imageWidth}
+      imageHeight={imageHeight}
+      imageType={imageType}
+      type={type}
+      publishedTime={publishedTime}
+      lang={lang}
+      noindex={noindex}
+      jsonLd={jsonLd}
+    />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const KEY = "theme";
+        let stored = null;
+        try {
+          stored = localStorage.getItem(KEY);
+        } catch (error) {
+          /* localStorage 不可用时按系统偏好 */
+        }
+        const theme =
+          stored === "light" || stored === "dark" || stored === "system"
+            ? stored
+            : "system";
+        const dark =
+          theme === "dark" ||
+          (theme === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        root.classList.toggle("dark", dark);
+        root.classList.toggle("light", !dark);
+        root.dataset.theme = theme;
+        const isEnglish =
+          location.pathname === "/en" || location.pathname.startsWith("/en/");
+        root.dataset.locale = isEnglish ? "en" : "zh";
+        if (isEnglish) root.lang = "en";
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute("content", dark ? "#0b0f14" : "#f8f9fb");
+        }
+      })();
+    </script>
   </head>
-  <body class="flex min-h-screen flex-col">
-    <Nav />
-    <main class="flex-1">
+  <body id="top" class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background"
+    >
+      {t("skipToContent")}
+    </a>
+    {
+      nav === "minimal" ? (
+        <header class="border-b border-border/60">
+          <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+            <a
+              href={localizePath("/", lang)}
+              class="shrink-0 font-semibold tracking-tight whitespace-nowrap"
+            >
+              {SITE.name}
+            </a>
+            <div class="flex items-center gap-2 sm:gap-3">
+              <a
+                href={localizePath("/", "zh")}
+                hreflang="zh"
+                lang="zh"
+                data-locale-link="zh"
+                class="rounded-md border border-border px-2.5 py-1.5 text-xs text-muted transition-colors hover:border-accent/60 hover:text-foreground"
+              >
+                {languages.zh}
+              </a>
+              <a
+                href={localizePath("/", "en")}
+                hreflang="en"
+                lang="en"
+                data-locale-link="en"
+                class="rounded-md border border-border px-2.5 py-1.5 text-xs text-muted transition-colors hover:border-accent/60 hover:text-foreground"
+              >
+                {languages.en}
+              </a>
+              <ThemeToggle lang={lang} />
+            </div>
+          </div>
+        </header>
+      ) : (
+        <Nav lang={lang} />
+      )
+    }
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
       <slot />
     </main>
-    <Footer />
+    {/* 404 用 minimal 页头，语言在客户端才确定，页脚文案无法静态选语言，故不渲染 */}
+    {footer && nav === "full" && <Footer lang={lang} />}
   </body>
 </html>

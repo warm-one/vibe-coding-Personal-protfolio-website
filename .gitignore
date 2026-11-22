@@ -25,3 +25,5 @@ pnpm-debug.log*
 
 # local tool state
 .commandcode/
+# local audit artifacts
+.audit/

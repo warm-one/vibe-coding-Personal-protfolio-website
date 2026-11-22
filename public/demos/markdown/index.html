@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/demos/markdown/favicon.svg" />
+    <title>Markdown 笔记</title>
+    <script>
+      ;(function () {
+        try {
+          var raw = localStorage.getItem('mdnotes:v1:prefs')
+          var theme = raw ? JSON.parse(raw).theme : 'system'
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var isDark = theme === 'dark' || (theme !== 'light' && prefersDark)
+          if (isDark) document.documentElement.classList.add('dark')
+        } catch (error) {
+          // 读取失败时忽略，交由应用启动后处理
+        }
+      })()
+    </script>
+    <script type="module" crossorigin src="/demos/markdown/assets/index-BR36GCjk.js"></script>
+    <link rel="stylesheet" crossorigin href="/demos/markdown/assets/index-DY4XFo3w.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

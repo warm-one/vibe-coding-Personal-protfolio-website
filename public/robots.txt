@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /demos/
 
 Sitemap: https://vibe-coding-personal-protfolio-webs.vercel.app/sitemap-index.xml

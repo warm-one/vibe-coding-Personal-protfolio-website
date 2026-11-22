@@ -1,0 +1,78 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import ProjectCard from "../../../components/ProjectCard.astro";
+import FilterChips from "../../../components/FilterChips.astro";
+import {
+  categoriesWithCounts,
+  categoryHref,
+  categoryLabelKey,
+} from "../../../lib/categories";
+import { getProjects } from "../../../lib/projects";
+import {
+  getLangFromUrl,
+  getLangStaticPaths,
+  localizePath,
+  useTranslations,
+} from "../../../i18n/utils";
+
+export function getStaticPaths() {
+  return getLangStaticPaths();
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const projects = await getProjects(lang);
+
+const chips = categoriesWithCounts(
+  projects.map((project) => ({ data: project.entry.data })),
+)
+  .filter((category) => category.count > 0)
+  .map((category) => ({
+    key: category.key,
+    label: t(categoryLabelKey(category.key)),
+    href: categoryHref(category.key, lang),
+  }));
+
+const projectNames = projects
+  .map((project) => project.entry.data.title)
+  .join(lang === "zh" ? "、" : ", ");
+const description = t("projectsMeta")
+  .replace("{count}", String(projects.length))
+  .replace("{names}", projectNames);
+---
+
+<BaseLayout lang={lang} title={t("projectsTitle")} description={description}>
+  <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+      {t("projectsTitle")}
+    </h1>
+    <p class="mt-4 max-w-2xl text-pretty text-muted">
+      {t("projectsIntro")}
+    </p>
+
+    <div class="mt-6 flex flex-wrap items-center gap-4">
+      <FilterChips
+        items={chips}
+        active="all"
+        allLabel={t("filterAll")}
+        allHref={localizePath("/projects", lang)}
+        navLabel={t("categoryNav")}
+      />
+      <span class="text-xs tabular-nums text-muted">
+        {t("projectsCount").replace("{count}", String(projects.length))}
+      </span>
+    </div>
+
+    {
+      projects.length > 0 ? (
+        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+          {projects.map((project) => (
+            <ProjectCard project={project} lang={lang} headingLevel="h2" />
+          ))}
+        </div>
+      ) : (
+        <p class="mt-8 text-muted">{t("emptyProjects")}</p>
+      )
+    }
+  </section>
+</BaseLayout>
